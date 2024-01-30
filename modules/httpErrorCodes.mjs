@@ -4,11 +4,11 @@
 
 class HttpCodes {
 
-    static SuccesfullRespons = {
+    static SuccessfulResponse = {
         Ok: 200
     }
 
-    static ClientSideErrorRespons = {
+    static ClientSideErrorResponse = {
         BadRequest: 400,
         Unauthorized: 401,
         PaymentRequired: 402,

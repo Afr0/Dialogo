@@ -5,54 +5,59 @@ import HttpCodes from "../modules/httpErrorCodes.mjs";
 
 const USER_API = express.Router();
 
-const users = [];
+var users = [];
 
+/**
+ * @returns An existing user based on the ID.
+ */
 USER_API.get('/:id', (req, res) => {
+    let { id } = req.params;
 
-    // Tip: All the information you need to get the id part of the request can be found in the documentation 
-    // https://expressjs.com/en/guide/routing.html (Route parameters)
+    let user = users.find(user => user.getId() === id);
 
-    /// TODO: 
-    // Return user object
-})
+    if (user) {
+        res.status(HttpCodes.SuccessfulResponse.Ok).json(user);
+    } else {
+        res.status(HttpCodes.ClientSideErrorResponse.NotFound).send('User not found!');
+    }
+});
 
-USER_API.post('/', (req, res, next) => {
-
+USER_API.post('/', express.json(), (req, res) => {
     // This is using javascript object destructuring.
-    // Recomend reading up https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#syntax
+    // Recommend reading up https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#syntax
     // https://www.freecodecamp.org/news/javascript-object-destructuring-spread-operator-rest-parameter/
-    const { name, email, password } = req.body;
+    let { userName, password } = req.body;
 
-    if (name != "" && email != "" && password != "") {
-        const user = new User();
-        user.name = name;
-        user.email = email;
+    if (userName != "" && password != "") {
+        const user = new User(userName, password);
 
-        ///TODO: Do not save passwords.
-        user.pswHash = password;
-
-        ///TODO: Does the user exist?
+        //TODO: Does the user exist?
         let exists = false;
 
         if (!exists) {
             users.push(user);
-            res.status(HttpCodes.SuccesfullRespons.Ok).end();
+            res.status(HttpCodes.SuccessfulResponse.Ok).end();
+            console.log("Successfully created user!");
         } else {
-            res.status(HttpCodes.ClientSideErrorRespons.BadRequest).end();
+            res.status(HttpCodes.ClientSideErrorResponse.BadRequest).end();
         }
 
     } else {
-        res.status(HttpCodes.ClientSideErrorRespons.BadRequest).send("Mangler data felt").end();
+        res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("Missing data field.").end();
     }
 
 });
 
 USER_API.put('/:id', (req, res) => {
     /// TODO: Edit user
-})
+});
 
 USER_API.delete('/:id', (req, res) => {
-    /// TODO: Delete user.
-})
+    let { id } = req.params;
+    let { sessionToken } = req.body; //TODO: Check that this is valid.
+
+    if (sessionToken != "")
+        users = users.filter(user => user.getId() !== id);
+});
 
 export default USER_API
