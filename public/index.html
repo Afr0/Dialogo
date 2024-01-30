@@ -1,15 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<style>
+    .btnNewUser {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+    }
+    .btnLogin {
+        position: absolute;
+        bottom: 16px;
+        right: 105px;
+    }
+</style>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My app</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dialogo">
+    <title>Dialogo</title>
 </head>
 
-
 <body>
-    <h1>Hello Class</h1>
+    <h1>Dialogo</h1>
+    <button title="Create a new user to track your scores" id="btnNewUser" class="btnNewUser">Create user</button>
+    <button id="btnLogin" class="btnLogin">Log in</button>
+
+    <!--Order is critically important. The controller depends on the other two, so
+        has to be imported last.-->
+        <script src="DialogoModel.js" type="module"></script>
+        <script src="./Views/IndexView.js" type="module"></script>
+        <script src="./Controllers/IndexController.js" type="module"></script>
 </body>
 
 </html>
