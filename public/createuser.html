@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link rel="stylesheet" href="./Style.css">
+</head>
+<body>
+  <div class="header">
+    <button class="backButton"><-</button><h1>Opprett ny bruker</h1>
+  </div>
+  
+  <form id="userForm" class="userForm" action="/user" enctype="" method="post">
+    <label for="txtUsername">Brukernavn *</label>
+    <input id="txtUsername" name="userName" type="text" /></br>
+    <label for="txtPassword">Passord *</label>
+    <input id="txtPassword" name="password" type="password" /></br>
+
+    <button id="btnRegister" class="button" type="submit">Opprett ny bruker</button>
+  </form>
+
+  <!--Order is critically important. The controller depends on the other two, so
+      has to be imported last.-->
+  <script src="Model.js" type="module"></script>
+  <script src="./Views/CreateUserView.js" type="module"></script>
+  <script src="./Controllers/CreateUserController.js" type="module"></script>
+</body>
+</html>
+
