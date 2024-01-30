@@ -1,0 +1,10 @@
+{
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+
+    "newuser": "New User",
+    "newuserfailure": "Couldn't create new user. Please try again!",
+    "newusercreated": "New User Created!",
+    "userdeleted": "User Deleted!",
+    "userloggedout": "You Were Logged Out!"
+}
