@@ -1,6 +1,6 @@
-import View from "./View.js";
+import DialogoView from "./DialogoView.js";
 
-export default class CreateUserView extends View {
+export default class CreateUserView extends DialogoView {
     #backBtn;
 
     constructor() {

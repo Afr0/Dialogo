@@ -19,7 +19,7 @@ class IndexController {
     }
 
     /**
-     * Initializes this MainController.
+     * Initializes this IndexController.
      * @param {*} url The URL to fetch data from.
      */
     async initialize(/*url*/) {
