@@ -1,6 +1,7 @@
 import express from 'express' // Express is installed using npm
 import USER_API from './routes/usersRoute.mjs'; // This is where we have defined the API for working with users.
-import TRANSLATION_API from './routes/translationsRoute.mjs'; 
+import Translate from "./middleware/Translate.mjs";
+import TRANSLATION_API from './routes/translationsRoute.mjs';
 
 // Creating an instance of the server
 const server = express();
@@ -11,13 +12,15 @@ server.set('port', port);
 // Defining a folder that will contain static files.
 server.use(express.static('public'));
 
+Translate.initialize("./middleware/API_KEY.txt");
+
 // Telling the server to use the USER_API (all urls that uses this code will have to have the /user after the base address)
 server.use("/user", USER_API);
 
 server.use("/translations", TRANSLATION_API);
 
 // A get request handler example
-server.get("/", (req, res, next) => {
+server.get("/", (req, res) => {
     res.sendFile('public/index.html');
 });
 

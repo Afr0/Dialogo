@@ -1,9 +1,11 @@
 import { promises as fs } from 'node:fs';
-import Languages from "Languages.mjs";
+import Languages from "../Languages.mjs";
 import fetch from 'node-fetch';
 
 /**A middleware that translates any number of English sentences into
- * any language(s) that are implemented by an application.
+ * any language(s) that are implemented by an application. A client
+ * can use this middleware by sending a JSON-encoded POST with any
+ * number of English sentences in a sentences array of the body.
  */
 export default class Translate {
     static #apiKey;
@@ -25,12 +27,26 @@ export default class Translate {
         }
     }
 
+    /**Gets a valid language code from a given implemented language.
+     * Based on: https://www.andiamo.co.uk/resources/iso-language-codes/
+     */
+    static #getValidLanguageCode(language = "") {
+        switch(language) {
+            case "Italian":
+                return "it";
+            case "Russian":
+                return "ru";
+            default:
+                return "en";
+        }
+    }
+
     /**Translates a number of sentences from a request
      * into however many languages are implemented in an
      * application.
      */
     static async translateFrom(req, res, next) {
-        if (!this.#initialized) {
+        if (!Translate.#initialized) {
             console.error("Translate class not initialized.");
             return next(new Error("Translation service not initialized."));
         }
@@ -41,7 +57,7 @@ export default class Translate {
         try {
             for(let sentence of sentences) {
                 translatedSentences = [];
-                //Creates a async function for each object...
+                //Creates an async function for each object...
                 let translationPromises = Object.values(Languages.ImplementedLanguages).map(async (langKey) => {
                     let targetLanguage = Languages.getLanguageName(langKey);
 
@@ -49,11 +65,11 @@ export default class Translate {
                     if(targetLanguage !== "English") {
                         let requestBody = {
                             q: sentence,
-                            target: targetLanguage,
+                            target: Translate.#getValidLanguageCode(targetLanguage),
                             format: 'text'
                         };
 
-                        let response = await fetch(this.#url + "?key=" + this.#apiKey, {
+                        let response = await fetch(Translate.#url + "?key=" + Translate.#apiKey, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(requestBody),

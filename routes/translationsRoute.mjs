@@ -1,10 +1,10 @@
 import express from "express";
 import HttpCodes from "../modules/httpErrorCodes.mjs";
-import Translate from "../middleware/Translate.js";
+import Translate from "../middleware/Translate.mjs";
 
 const TRANSLATION_API = express.Router();
 
-TRANSLATION_API.post("/", Translate.translateFrom, (req, res) => {
+TRANSLATION_API.post("/", express.json(), Translate.translateFrom, (req, res) => {
     //TODO: Propagate translations into DB...
 });
 
