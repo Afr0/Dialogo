@@ -22,11 +22,27 @@ class TranslateController {
 
         btnSubmit.addEventListener("click", async () => {
             let wordsToSend = txtSentences.value.split("\n");
-            console.log("Sending sentences for translation...");
 
             this.#Model.postData(TRANSLATE_URL,
                 {sentences : wordsToSend}, "application/json", "", "", false).then(response => {
-                    console.log(response);
+                    let dropDown = document.createElement("select");
+                    
+                    //WTF Google?!
+                    response.translations.forEach(wtfGoogle => {
+                        wtfGoogle.translations.forEach(notReallyActualTranslation => {
+                            if(notReallyActualTranslation !== null) { //This is actually a thing...
+                                notReallyActualTranslation.data.translations.forEach(actualTranslation => {
+                                    let option = document.createElement("option");
+                                    option.value = actualTranslation.translatedText;
+                                    option.textContent = actualTranslation.translatedText;
+                                    dropDown.appendChild(option);
+                                });
+                            } 
+                        });
+                    });
+
+                    document.body.appendChild(dropDown);
+
                 }).catch((error) => {
                     this.#View.createToast(LanguageManager.getTranslation("newuserfailure"));
                     console.log(error);
