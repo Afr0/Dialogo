@@ -27,48 +27,53 @@ const CURRENTLANGUAGE_CACHE = "currentLanguage";
  * Improved upon for this project by making everything static.
  */
 export default class LanguageManager {
-    static #currentLanguage;
+    static #currentLanguage = 2;
+    static #translations = [];
 
     /**Sets the language used by the LanguageManager
      * (and by extension, the application).
      * @param {number} lang The language to set. Please
-     * pick one from the Languages class.
+     * pick one from the Languages class. Defaults to 2 for Eng.
      * @param {boolean} overrideCache Should the current language
      * be overridden? If this isn't set, the language will only be
      * set if it hasn't already been set (I.E exists in the cache).
      * Defaults to false.
      * @returns True if successful, false otherwise.
      */
-    static setLanguage(lang = 1, overrideCache = false) {
+    static setLanguage(lang = 2, overrideCache = false) {
         try {
             if((!localStorage.getItem(CURRENTLANGUAGE_CACHE)) || 
               (localStorage.getItem(CURRENTLANGUAGE_CACHE) && overrideCache)) {
-                this.#currentLanguage = Languages.getLanguageName(lang);
-                this.#loadLanguage(lang);
+                LanguageManager.#currentLanguage = lang;
+                LanguageManager.#loadLanguage(lang);
                 localStorage.setItem(CURRENTLANGUAGE_CACHE, lang)
+              }
+              else {
+                if (!LanguageManager.#translations[LanguageManager.#currentLanguage])
+                    //Persist dammit!
+                    LanguageManager.#loadLanguage(LanguageManager.#currentLanguage);
               }
         }
         catch(exception) {
-            this.#currentLanguage = "";
+            LanguageManager.#currentLanguage = 2;
             return false;
         }
 
         return true;
     }
 
-    /**Loads the specified language asynchronously. Needs to be called
-     * before getTranslation().
+    /**Loads the specified language asynchronously.
      */
-    static async #loadLanguage(lang = 1) {
-        if(!this.translations)
-            this.translations = {};
+    static async #loadLanguage(lang = 2) {
+        if(!LanguageManager.#translations)
+            LanguageManager.#translations = [];
 
         try {
-            const response = await fetch(`./Locales/${lang}.json`);
+            const response = await fetch(`./Locales/${Languages.getLanguageName(lang)}.json`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            this.translations[lang] = await response.json();
+            LanguageManager.#translations[lang] = await response.json();
         } catch (error) {
             console.error("Could not load language file:", error);
             throw error; //Caught in setLanguage().
@@ -80,20 +85,19 @@ export default class LanguageManager {
      * @returns The translation if it was found, otherwise null.
      */
     static getTranslation(key = "") {
-        if(!this.#currentLanguage) {
-            this.#currentLanguage = localStorage.getItem(CURRENTLANGUAGE_CACHE);
+        if(!LanguageManager.#currentLanguage) {
+            LanguageManager.#currentLanguage = localStorage.getItem(CURRENTLANGUAGE_CACHE);
 
-            if(!this.#currentLanguage) {
+            if(!LanguageManager.#currentLanguage) {
                 console.warn("Tried to use getTranslation() before language was set!");
                 return null;
             }
         }
 
-        if (!this.translations[this.#currentLanguage]) {
-            console.warn(`Language '${this.#currentLanguage}' not loaded.`);
-            return null;
-        }
+        if (!LanguageManager.#translations[LanguageManager.#currentLanguage]) 
+            //Persist dammit!
+            LanguageManager.#loadLanguage(LanguageManager.#currentLanguage);
 
-        return this.translations[this.#currentLanguage][key] || `{{${key}}}`;
+        return LanguageManager.#translations[LanguageManager.#currentLanguage][key] || `{{${key}}}`;
     }
 }
