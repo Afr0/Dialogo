@@ -1,6 +1,50 @@
 import LanguageManager from "../LanguageManager.js";
 
 export default class DialogoView {
+    events;
+
+    constructor(viewId) {
+        this.viewElement = document.getElementById(viewId);
+        if (!this.viewElement) throw new Error(`View "${viewId}" not found.`);
+
+        this.events = {};
+    }
+
+    /**Registers an event listener.
+     * @param {} event The id of the event for which to listen.
+     * @param {*} listener The event listener to register.
+     */
+    on(event = "", listener) {
+        if (!this.events[event])
+            this.events[event] = [];
+
+        this.events[event].push(listener);
+    }
+
+    /**Emits an event.
+     * @param {string} [event=""] The id of the event to emit.
+     * @param {...*} args The arguments of the event. Optional.
+     */
+    emit(event = "", ...args) {
+        if (this.events[event])
+            this.events[event].forEach(listener => listener(...args));
+    }
+
+    /**Shows a view. */
+    show() {
+        this.viewElement.style.display = 'block';
+        this.onShow();
+    }
+
+    /**Hides a view. */
+    hide() {
+        this.viewElement.style.display = 'none';
+    }
+
+    /**Derived classes should override this to define what is shown. */  
+    onShow() {
+    }
+
     /**Create a toast.
      * @param caption The caption of the toast.
      * @param timeout Optional timeout, set to 3500 by default.
