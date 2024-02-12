@@ -2,5 +2,8 @@
     "confirm": "Confermi",
     "cancel": "Annulla",
     "newuser": "Nuovo utente",
-    "newuserfailure": "Impossibile creare l'utente. Per favore riprova!"
+    "newuserfailure": "Impossibile creare l'utente. Per favore riprova!",
+    "newusercreated": "Nuovo utente creato!",
+    "userdeleted": "Utente eliminato!",
+    "userloggedout": "Sei stato disconnesso!"
 }
