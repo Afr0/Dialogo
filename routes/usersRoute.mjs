@@ -1,7 +1,6 @@
 import express, { response } from "express";
 import User from "../modules/user.mjs";
-import HttpCodes from "../modules/httpErrorCodes.mjs";
-
+import { HttpCodes } from "../modules/httpConstants.mjs";
 
 const USER_API = express.Router();
 

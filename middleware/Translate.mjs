@@ -1,6 +1,7 @@
 import { promises as fs } from 'node:fs';
 import Languages from "../Languages.mjs";
 import fetch from 'node-fetch';
+import SuperLogger from '../modules/SuperLogger.mjs';
 
 /**A middleware that translates any number of English sentences into
  * any language(s) that are implemented by an application. A client
@@ -22,7 +23,7 @@ export default class Translate {
             this.#apiKey = data.trim(); //Trim to remove any newline character.
             this.#initialized = true;
         } catch (error) {
-            console.error("Failed to initialize Translate class:", error);
+            SuperLogger.log("Failed to initialize Translate class:", SuperLogger.LOGGING_LEVELS.CRTICAL);
             throw error;
         }
     }
@@ -47,7 +48,7 @@ export default class Translate {
      */
     static async translateFrom(req, res, next) {
         if (!Translate.#initialized) {
-            console.error("Translate class not initialized.");
+            SuperLogger.log("Translate class not initialized.", SuperLogger.LOGGING_LEVELS.CRTICAL);
             return next(new Error("Translation service not initialized."));
         }
         
@@ -83,7 +84,8 @@ export default class Translate {
                 translatedSentences.push({sentence, translations: sentenceTranslations});
             }
         } catch(error) {
-            console.error("Translate: " + error + " error in translation.");
+            SuperLogger.log("Translate: " + error + " error in translation.", 
+                SuperLogger.LOGGING_LEVELS.CRTICAL);
             return next(new Error("Translate: " + error + " error in translation."));
         }
 

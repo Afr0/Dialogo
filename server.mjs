@@ -2,6 +2,7 @@ import express from 'express' // Express is installed using npm
 import USER_API from './routes/usersRoute.mjs'; // This is where we have defined the API for working with users.
 import Translate from "./middleware/Translate.mjs";
 import TRANSLATION_API from './routes/translationsRoute.mjs';
+import SuperLogger from "./modules/SuperLogger.mjs";
 
 // Creating an instance of the server
 const server = express();
@@ -18,6 +19,10 @@ Translate.initialize("./middleware/API_KEY.txt");
 server.use("/user", USER_API);
 
 server.use("/translations", TRANSLATION_API);
+
+// Enable logging for server
+const logger = new SuperLogger();
+server.use(logger.createAutoHTTPRequestLogger()); // Will logg all http method requests
 
 // A get request handler example
 server.get("/", (req, res) => {

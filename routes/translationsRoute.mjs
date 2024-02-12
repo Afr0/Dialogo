@@ -1,5 +1,5 @@
 import express from "express";
-import HttpCodes from "../modules/httpErrorCodes.mjs";
+import { HttpCodes } from "../modules/httpConstants.mjs";
 import Translate from "../middleware/Translate.mjs";
 
 const TRANSLATION_API = express.Router();
