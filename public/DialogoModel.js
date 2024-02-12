@@ -502,6 +502,10 @@ export default class DialogoModel {
    
        return item;
    }
+
+   static INDEXVIEW_ID = "indexView";
+   static CREATEUSERVIEW_ID = "createUserView";
+   static TRANSLATEVIEW_ID = "translateView";
  
     static CATEGORY_CACHE_NAME = "plantCategoriesCache";
     static MAIN_CACHE_NAME = "plantDataCache";

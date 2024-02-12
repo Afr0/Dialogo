@@ -3,8 +3,8 @@ import DialogoView from "./DialogoView.js";
 export default class CreateUserView extends DialogoView {
     #backBtn;
 
-    constructor() {
-        super();
+    constructor(viewID) {
+        super(viewID);
 
         this.#backBtn = document.getElementsByClassName("backButton")[0];
         this.#backBtn.addEventListener("click", function() {

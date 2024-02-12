@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dialogo">
+    <title>Dialogo</title>
+    <link rel="stylesheet" href="./Style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
 <style>
     .btnNewUser {
         position: absolute;
@@ -14,19 +25,27 @@
     }
 </style>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Dialogo">
-    <title>Dialogo</title>
-</head>
-
 <body>
-    <h1>Dialogo</h1>
-    <button title="Create a new user to track your scores" id="btnNewUser" class="btnNewUser">Create user</button>
-    <button id="btnLogin" class="btnLogin">Log in</button>
+    <div id="indexView" class="view" style="display:none;">
+        <h1>Dialogo</h1>
+        <button title="Create a new user to track your scores" id="btnNewUser" class="btnNewUser">Create user</button>
+        <button id="btnLogin" class="btnLogin">Log in</button>
+    </div>
+
+    <div id="createUserView" class="view" style="display:none;">
+        <div class="header">
+            <button class="backButton"><-</button><h1>Opprett ny bruker</h1>
+          </div>
+          
+          <form id="userForm" class="userForm" action="/user" enctype="" method="post">
+            <label for="txtUsername">Brukernavn *</label>
+            <input id="txtUsername" name="userName" type="text" /></br>
+            <label for="txtPassword">Passord *</label>
+            <input id="txtPassword" name="password" type="password" /></br>
+        
+            <button id="btnRegister" class="button" type="submit">Opprett ny bruker</button>
+          </form>
+    </div>
 
     <!--Order is critically important. The controller depends on the other two, so
         has to be imported last.-->

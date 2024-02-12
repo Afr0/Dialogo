@@ -7,19 +7,23 @@ export default class IndexView extends DialogoView {
 
     /**Constructs a new instance of IndexView.
      */
-    constructor() {
-        super();
+    constructor(viewID) {
+        super(viewID);
 
         this.#languageManager = new LanguageManager();
         
         let btnNewUser = document.getElementById("btnNewUser");
-        btnNewUser.addEventListener("click", function() {
-            window.location.href = "./createuser.html";
+        btnNewUser.addEventListener("click", () => {
+            this.emit("navigateToCreateUser");
         });
         
         let btnLogin = document.getElementById("btnLogin");
-        btnLogin.addEventListener("click", function() {
+        btnLogin.addEventListener("click", () => {
             window.location.href = "./login.html";
         });
+    }
+
+    onShow() {
+        //TODO: Dynamically create content...
     }
  }

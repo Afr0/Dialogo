@@ -2,6 +2,8 @@ import DialogoModel from "../DialogoModel.js";
 import IndexView from "../Views/IndexView.js";
 import LanguageManager from "../LanguageManager.js";
 import { Languages } from "../LanguageManager.js";
+import NavManager from "../NavigationManager.js";
+import CreateUserController from "../Controllers/CreateUserController.js";
 
 /**
  * Controller for the Index view.
@@ -44,6 +46,10 @@ class IndexController {
             });
         }*/
     }
+
+    static navigateToCreateUser() {
+        let controller = new CreateUserController();
+    }
 }
 
 const KEY = "CKXDXF73";
@@ -55,7 +61,10 @@ document.addEventListener("DOMContentLoaded", async function() {
     let urlParams = new URLSearchParams(window.location.search);
 
     let appModel = new DialogoModel(DialogoModel.MAIN_CACHE_NAME);
-    let appView = new IndexView();
+    let appView = new IndexView(DialogoModel.INDEXVIEW_ID);
+    NavManager.registerView(DialogoModel.INDEXVIEW_ID, appView);
+    NavManager.showView(DialogoModel.INDEXVIEW_ID);
+    appView.on("navigateToCreateUser", IndexController.navigateToCreateUser.bind(this));
 
     if(urlParams.get("userCreated") === "true")
         appView.createToast(LanguageManager.getTranslation("newusercreated"));

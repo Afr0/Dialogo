@@ -1,6 +1,7 @@
 import DialogoModel from "../DialogoModel.js";
 import CreateUserView from "../Views/CreateUserView.js";
 import LanguageManager from "../LanguageManager.js";
+import NavManager from "../NavigationManager.js";
 
 /**
  * Controller for the CreateUser view.
@@ -8,14 +9,18 @@ import LanguageManager from "../LanguageManager.js";
  * Using a Controller ensures that a Model is never aware of the View and vice
  * versa, ensuring separation of concerns.
  */
-class CreateUserController {
+export default class CreateUserController {
     #Model;
     #View;
     #LangManager = new LanguageManager();
 
-    constructor(CreateUserModel, CreateUserView) {
-        this.#Model = CreateUserModel;
-        this.#View = CreateUserView;
+    constructor() {
+        this.#Model = new DialogoModel(DialogoModel.USER_CACHE_NAME);
+        this.#View = new CreateUserView(DialogoModel.CREATEUSERVIEW_ID);
+
+        NavManager.registerView(DialogoModel.CREATEUSERVIEW_ID, this.#View);
+        NavManager.showView(DialogoModel.CREATEUSERVIEW_ID);
+        console.log(LanguageManager.getTranslation("newuserfailure"));
 
         let userForm = document.getElementById("userForm");
 
@@ -39,12 +44,4 @@ class CreateUserController {
     }
 }
 
-const CREATEUSER_URL = "localhost:8080/user";
-
-//Ensure the Controller is initialized when the webpage has been
-//loaded.
-document.addEventListener("DOMContentLoaded", function() {
-    let appModel = new DialogoModel(DialogoModel.USER_CACHE_NAME);
-    let appView = new CreateUserView();
-    let appController = new CreateUserController(appModel, appView);
-});
+const CREATEUSER_URL = "http://localhost:8080/user";
