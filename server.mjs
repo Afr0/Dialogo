@@ -1,4 +1,5 @@
 import express from 'express' // Express is installed using npm
+import 'dotenv/config';
 import USER_API from './routes/usersRoute.mjs'; // This is where we have defined the API for working with users.
 import Translate from "./middleware/Translate.mjs";
 import TRANSLATION_API from './routes/translationsRoute.mjs';
