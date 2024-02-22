@@ -1,9 +1,9 @@
-import Languages from "Languages.js";
+import Languages from "../Languages.mjs";
 
 /**Set the preferred language for a new user request based on the accept-language header.
  * It only does this if the accept header is actually set.
 */
-function preferredLanguage(req, res, next) {
+export default function preferredLanguage(req, res, next) {
     let acceptLanguage = req.headers['accept-language'];
 
     let languagePreference = Languages.ImplementedLanguages.English; //Default language
