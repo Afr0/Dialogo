@@ -10,6 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@wault-pw/srp6a-webcrypto": "^1.0.9",
+    "biginteger": "^1.0.3",
+    "dotenv": "^16.4.3",
     "express": "^4.18.2",
     "node-fetch": "^3.3.2"
   },

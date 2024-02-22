@@ -2,6 +2,10 @@ import DialogoModel from "../DialogoModel.js";
 import CreateUserView from "../Views/CreateUserView.js";
 import LanguageManager from "../LanguageManager.js";
 import NavManager from "../NavigationManager.js";
+//node-srp was giving me a LOT of grief because of its insistence on require instead of import,
+//so ended up using this instead.
+import { SrpClient, RFC5054b1024Sha1 } from "@wault-pw/srp6a-webcrypto";
+
 
 /**
  * Controller for the CreateUser view.
@@ -29,18 +33,25 @@ export default class CreateUserController {
             //but does not stop the event from bubbling up the DOM:
             //https://jacobwardio.medium.com/how-to-correctly-use-preventdefault-stoppropagation-or-return-false-on-events-6c4e3f31aedb
             event.preventDefault();
-            let formData = new FormData(userForm);
+
+            let userName = document.getElementById("txtUsername").value;
+            let password = document.getElementById("txtPassword").value;
+
+            let client = new SrpClient(userName, password, RFC5054b1024Sha1);
+            client.seed(await client.randomSalt());
+            let verifier = (await client.verifier()).toString('hex');
 
             //TODO: Sanity check this - the priority is not great, because the server likely sanity
             //checks whatever it receives.
             this.#Model.postData(CREATEUSER_URL,
-                formData, "application/json", "", "", false).then(response => {
+                { userName: userName, verifier: verifier, salt: client.salt.toString('hex') }, 
+                "application/json", "", "", false).then(response => {
                     window.location.href="./index.html?userCreated=true";
                 }).catch((error) => {
                     this.#View.createToast(LanguageManager.getTranslation("newuserfailure"));
                     console.log(error);
                 });
-        });
+            });    
     }
 }
 

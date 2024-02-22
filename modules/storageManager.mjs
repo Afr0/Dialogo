@@ -24,7 +24,7 @@ class DBManager {
 
         try {
             await client.connect();
-            const output = await client.query('Update "public"."Users" set "name" = $1, "email" = $2, "password" = $3 where id = $4;', [user.name, user.email, user.pswHash, user.id]);
+            const output = await client.query('Update "public"."Users" set "name" = $1, "password" = $3, "salt" = $4, preferredLanguage = $5 where id = $5;', [user.getUsername(), user.getVerifier(), user.getSalt(), user.getPreferredLanguage(), user.getId()]);
 
             // Client.Query returns an object of type pg.Result (https://node-postgres.com/apis/result)
             // Of special interest is the rows and rowCount properties of this object.
@@ -48,8 +48,8 @@ class DBManager {
             await client.connect();
             const output = await client.query('Delete from "public"."Users"  where id = $1;', [user.id]);
 
-            // Client.Query returns an object of type pg.Result (https://node-postgres.com/apis/result)
-            // Of special intrest is the rows and rowCount properties of this object.
+            //Client.Query returns an object of type pg.Result (https://node-postgres.com/apis/result)
+            //Of special interest is the rows and rowCount properties of this object.
 
             //TODO: Did the user get deleted?
 
@@ -67,7 +67,7 @@ class DBManager {
 
         try {
             await client.connect();
-            const output = await client.query('INSERT INTO "public"."Users"("name", "email", "password") VALUES($1::Text, $2::Text, $3::Text) RETURNING id;', [user.name, user.email, user.pswHash]);
+            const output = await client.query('INSERT INTO "public"."Users"("name", "password", "salt", preferredLanguage) VALUES($1::Text, $2::Text, $3::Text, $4::Integer) RETURNING id;', [user.getUsername(), user.getVerifier(), user.getSalt(), user.getPreferredLanguage()]);
 
             // Client.Query returns an object of type pg.Result (https://node-postgres.com/apis/result)
             // Of special intrest is the rows and rowCount properties of this object.
@@ -85,9 +85,7 @@ class DBManager {
         }
 
         return user;
-
     }
-
 }
 
 export default new DBManager(process.env.DB_CONNECTIONSTRING);

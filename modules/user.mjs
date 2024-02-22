@@ -5,6 +5,7 @@ class User {
     #id;
     #userName = "";
     #pwdHash = "";
+    #salt = "";
     #preferredLanguage;
 
     /**
@@ -23,14 +24,40 @@ class User {
         return this.#userName;
     }
 
+    /**
+     * Gets this user's verifier.
+     * @returns The user's verifier.
+     */
+    getVerifier() {
+      return this.#pwdHash;
+    }
+
+    /**
+     * Gets this user's salt.
+     * @returns The user's salt.
+     */
+    getSalt() {
+      return this.#salt;
+    }
+
+    /**
+     * Gets this user's preferred language.
+     * @returns The user's preferred language.
+     */
+    getPreferredLanguage() {
+      return this.#preferredLanguage;
+    }
+
     /**Constructs a new User instance. 
      * @param {string} userName The user's name.
-     * @param {string} pwdhash The user's hashed password.
+     * @param {string} verifier The user's verifier.
+     * @param {string} salt The user's salt.
      * @param {number} [preferredLanguage=1] The user's preferred language, defaults to English.
     */
-    constructor(userName="", pwdhash="", preferredLanguage = Languages.ImplementedLanguages.English) {
+    constructor(userName="", verifier="", salt="", preferredLanguage = Languages.ImplementedLanguages.English) {
         this.#userName = userName;
-        this.#pwdHash = pwdhash;
+        this.#pwdHash = verifier;
+        this.#salt = salt;
         this.#preferredLanguage = preferredLanguage;
     }
 

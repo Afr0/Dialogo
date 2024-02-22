@@ -25,10 +25,10 @@ USER_API.post('/', express.json(), (req, res) => {
     // This is using javascript object destructuring.
     // Recommend reading up https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#syntax
     // https://www.freecodecamp.org/news/javascript-object-destructuring-spread-operator-rest-parameter/
-    let { userName, password } = req.body;
+    let { userName, verifier, salt } = req.body;
 
-    if (userName != "" && password != "") {
-        const user = new User(userName, password);
+    if (userName != "" && verifier != "" && salt != "") {
+        let user = new User(userName, verifier, salt);
 
         //TODO: Does the user exist?
         let exists = false;
