@@ -1,13 +1,13 @@
 {
-  "name": "semesterproject",
+  "name": "Dialogo",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "public/index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Mats Vederhus",
   "license": "ISC",
   "dependencies": {
     "@wault-pw/srp6a-webcrypto": "^1.0.9",
