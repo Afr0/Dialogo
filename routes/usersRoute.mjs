@@ -1,10 +1,30 @@
-import express, { response } from "express";
+import express from "express";
 import User from "../modules/user.mjs";
 import { HttpCodes } from "../modules/httpConstants.mjs";
+import preferredLanguage from "../middleware/preferredLanguage.mjs";
+import SuperLogger from "../modules/SuperLogger.mjs";
+import SRPServer from "secure-remote-password/server.js";
+import crypto from "node:crypto";
 
 const USER_API = express.Router();
 
 var users = [];
+
+var sessionDetails = {};
+
+/**Server's secret ephemerals. 
+ * Stored in-memory, as their 
+ * lifetime are on a
+ * session by session basis.
+ */
+var serverSecrets = {};
+
+/**Clients' public ephemerals. 
+ * Stored in-memory, as their 
+ * lifetime are on a
+ * session by session basis.
+ */
+var clientEphemerals = {};
 
 /**
  * @returns An existing user based on the ID.
@@ -14,14 +34,13 @@ USER_API.get('/:id', (req, res) => {
 
     let user = users.find(user => user.getId() === id);
 
-    if (user) {
+    if (user)
         res.status(HttpCodes.SuccessfulResponse.Ok).json(user);
-    } else {
+    else
         res.status(HttpCodes.ClientSideErrorResponse.NotFound).send('User not found!');
-    }
 });
 
-USER_API.post('/', express.json(), (req, res) => {
+USER_API.post('/', express.json(), preferredLanguage, async (req, res) => {
     // This is using javascript object destructuring.
     // Recommend reading up https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#syntax
     // https://www.freecodecamp.org/news/javascript-object-destructuring-spread-operator-rest-parameter/
@@ -34,9 +53,10 @@ USER_API.post('/', express.json(), (req, res) => {
         let exists = false;
 
         if (!exists) {
+            //TODO: What happens if this fails?
+            user = await user.save();
             users.push(user);
-            res.status(HttpCodes.SuccessfulResponse.Ok).end();
-            console.log("Successfully created user!");
+            res.status(HttpCodes.SuccessfulResponse.Ok).json(JSON.stringify(user));
         } else {
             res.status(HttpCodes.ClientSideErrorResponse.BadRequest).end();
         }
@@ -44,19 +64,120 @@ USER_API.post('/', express.json(), (req, res) => {
     } else {
         res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("Missing data field.").end();
     }
-
 });
 
-USER_API.put('/:id', (req, res) => {
-    /// TODO: Edit user
+USER_API.post('/login', express.json(), async (req, res) => {
+    let { userName, ephemeral } = req.body;
+
+    let user = users.find(user => user.getUsername() === userName);
+    if(!user) {
+        console.log("Trying to get user from DB...");
+        user = await User.getUser(userName);
+        users.push(user); //Cache user to avoid DB hits.
+    }
+
+    clientEphemerals[userName] = ephemeral;
+
+    let serverEphemeral = SRPServer.generateEphemeral(user.getVerifier());
+    //These don't have to go in the DB as their lifetime are on a session by session basis.
+    serverSecrets[user.getUsername()] = serverEphemeral.secret;
+    res.status(HttpCodes.SuccessfulResponse.Ok).json(JSON.stringify(
+        {salt: user.getSalt(), ephemeral: serverEphemeral.public}));
+});
+
+USER_API.post('/proof', express.json(), async (req, res) => {
+    let { userName, proof } = req.body;
+    let serverSecretEphemeral = serverSecrets[userName];
+
+    let user = users.find(user => user.getUsername() === userName);
+    if(!user) {
+        console.log("Trying to get user from DB...");
+        user = await User.getUser(userName);
+    }
+
+    try {
+        let serverSession = SRPServer.deriveSession(serverSecretEphemeral, 
+            clientEphemerals[userName], user.getSalt(), userName, user.getVerifier(), proof);
+
+        if(serverSession.proof) {
+            let sessionID = crypto.randomUUID();
+            sessionDetails[sessionID] = {
+                salt: user.getSalt(),
+                encryptionKey: serverSession.key,
+                userName: userName 
+            };
+
+            res.status(HttpCodes.SuccessfulResponse.Ok).json(JSON.stringify(
+                {sessionID: sessionID, proof: serverSession.proof, 
+                preferredLanguage: user.getPreferredLanguage()}));
+        }
+        else
+            res.status(HttpCodes.ClientSideErrorResponse.NotAcceptable).json(JSON.stringify({}));
+    } catch(error) {
+        console.log(error);
+        res.status(HttpCodes.ClientSideErrorResponse.NotAcceptable).json(JSON.stringify({}));
+    }
+});
+
+USER_API.post('/logout', express.json(), async (req, res) => {
+    let { userName, sessionID } = req.body;
+    let encryptionKey;
+
+    for (const [sessionID, details] of Object.entries(sessionDetails)) {
+        if(details.userName === userName) {
+            encryptionKey = details.encryptionKey;
+            break;
+        }
+    }
+
+    if(encryptionKey === "")
+        res.status(HttpCodes.ClientSideErrorResponse.NotAcceptable).json(JSON.stringify({ message: "Invalid sessionID!" }));
+
+    try {
+        if(sessionDetails[sessionID] !== null) {
+            console.log("Successful logout!");
+            res.status(HttpCodes.SuccessfulResponse.Ok).json({ message: "User logged out." });
+
+            delete sessionDetails[sessionID];
+            delete serverSecrets[userName];
+            delete clientEphemerals[userName];
+        }
+    } catch(error) {
+        console.log(error);
+        res.status(HttpCodes.ClientSideErrorResponse.NotAcceptable).json(JSON.stringify({}));
+    }
+});
+
+USER_API.put('/', express.json(), async (req, res) => {
+    let { sessionID, userName, preferredLanguage } = req.body;
+
+    let session = sessionDetails[sessionID];
+
+    if(session) {
+        console.log("Found session, updating user...");
+        let user = users.find(user => user.getUsername() === userName);
+        user.setPreferredLanguage(preferredLanguage);
+        await user.save();
+
+        res.status(HttpCodes.SuccessfulResponse.Ok).json({ message: "User updated successfully." });
+    } 
+    else
+        res.status(HttpCodes.ClientSideErrorResponse.NotFound).json({ message: "User not found." });
 });
 
 USER_API.delete('/:id', (req, res) => {
-    let { id } = req.params;
-    let { sessionToken } = req.body; //TODO: Check that this is valid.
+    /// TODO: Delete user.
+    const user = new User(); //TODO: Actual user
+    user.delete();
+});
 
-    if (sessionToken != "")
-        users = users.filter(user => user.getId() !== id);
+/**A very simple middleware for handling errors
+ * that sends a generic error message to the client.
+ */
+USER_API.use((err, req, res, next) => {
+    console.error(err);
+    res.status(HttpCodes.ClientSideErrorResponse).send('An error occurred.');
+    next();
 });
 
 export default USER_API

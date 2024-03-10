@@ -9,6 +9,13 @@ class User {
     #preferredLanguage;
 
     /**
+    * Sets this user's id.
+    */
+    setId(id = 0) {
+      this.#id = id;
+    }
+
+    /**
     * Gets this user's id.
     * @returns The user's id.
     */
@@ -48,6 +55,14 @@ class User {
       return this.#preferredLanguage;
     }
 
+    /**
+    * Sets this user's preferred language.
+    * @param {number} [preferredLanguage=2] The user's preferred language, defaults to English.
+    */
+    setPreferredLanguage(preferredLanguage = Languages.ImplementedLanguages.English) {
+      this.#preferredLanguage = preferredLanguage;
+    }
+
     /**Constructs a new User instance. 
      * @param {string} userName The user's name.
      * @param {string} verifier The user's verifier.
@@ -62,20 +77,27 @@ class User {
     }
 
     async save() {
+      //TODO: What happens if the DBManager fails to complete its task?
+    
+      //We know that if a user object dos not have the ID, then it cant be in the DB.
+      if (this.#id == null)
+        return await DBManager.createUser(this);
+      else
+        return await DBManager.updateUser(this);
+    }
 
-        //TODO: What happens if the DBManager fails to complete its task?
+    /**Gets a user from the DB based on the username.
+     *@param {string} [userName=""] The user's username.
+     *@returns A new user instance or null if the user wasn't found.
+     */
+    static async getUser(userName="") {
+      return await DBManager.getUser(userName);
+    }
     
-        //We know that if a user object dos not have the ID, then it cant be in the DB.
-        if (this.id == null) 
-          return await DBManager.createUser(this);
-        else
-          return await DBManager.updateUser(this);
-      }
-    
-      delete() {
-        //TODO: What happens if the DBManager fails to complete its task?
-        DBManager.deleteUser(this);
-      }
+    delete() {
+      //TODO: What happens if the DBManager fails to complete its task?
+      DBManager.deleteUser(this);
+    }
 }
 
 export default User;
