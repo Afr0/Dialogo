@@ -13,39 +13,49 @@
 </head>
 
 <style>
-    .btnNewUser {
+    .buttonContainer {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 10px;
         position: absolute;
         bottom: 16px;
         right: 16px;
+        left: 16px;
+        justify-content: center;
+    }
+
+    .btnNewUser, .btnLogin, .btnSettings, .btnStart {
+        flex: 1 1 auto;
+        flex-grow: 1;
+        margin: 5px;
+        max-width: 150px;
+    }
+
+    .btnNewUser {
+        background-color: #F2CB05;
+        color: #594B02;
+        border-radius: 50%;
     }
     .btnLogin {
-        position: absolute;
-        bottom: 16px;
-        right: 105px;
+        background-color: #F2CB05;
+        color: #594B02;
+        border-radius: 50%;
+    }
+    .btnSettings {
+        background-color: #F2CB05;
+        color: #594B02;
+        border-radius: 50%;
+    }
+    .btnStart {
+        background-color: #F2CB05;
+        color: #594B02;
+        border-radius: 50%;
     }
 </style>
 
 <body>
-    <div id="indexView" class="view" style="display:none;">
-        <h1>Dialogo</h1>
-        <button title="Create a new user to track your scores" id="btnNewUser" class="btnNewUser">Create user</button>
-        <button id="btnLogin" class="btnLogin">Log in</button>
-    </div>
-
-    <div id="createUserView" class="view" style="display:none;">
-        <div class="header">
-            <button class="backButton"><-</button><h1>Opprett ny bruker</h1>
-          </div>
-          
-          <form id="userForm" class="userForm" action="/user" enctype="" method="post">
-            <label for="txtUsername">Brukernavn *</label>
-            <input id="txtUsername" name="userName" type="text" /></br>
-            <label for="txtPassword">Passord *</label>
-            <input id="txtPassword" name="password" type="password" /></br>
-        
-            <button id="btnRegister" class="button" type="submit">Opprett ny bruker</button>
-          </form>
-    </div>
 
     <!--Order is critically important. The controller depends on the other two, so
         has to be imported last.-->

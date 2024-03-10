@@ -1,22 +1,24 @@
 import DialogoView from "./DialogoView.js";
 import LanguageManager from "../LanguageManager.js";
 
-export default class CreateUserView extends DialogoView {
+export default class LoginView extends DialogoView {
     #backBtn;
-    #btnRegister;
+    #btnLogin;
 
     #navigateToIndexCallback;
 
-    constructor(viewID="") {
+    constructor(viewID) {
         super(viewID);
 
+        //TODO if time: make all elements in a view available in a list/array?
+        //So you could change the text of the H1 without knowledge of its ID...
         let title = document.getElementById("Header");
-        this.#btnRegister = document.getElementById("btnRegister");
-        LanguageManager.getTranslation("newuser").then((translation) => {
+        this.#btnLogin = document.getElementById("btnLogin");
+        LanguageManager.getTranslation("login").then((translation) => {
             title.textContent = translation;
-            this.#btnRegister.textContent = translation;
+            this.#btnLogin.textContent = translation;
         });
-
+        
         let lblUsername = document.getElementById("lblUsername");
         let lblPassword = document.getElementById("lblPassword");
         LanguageManager.getTranslation("username").then((translation) => {
@@ -26,12 +28,14 @@ export default class CreateUserView extends DialogoView {
             lblPassword.textContent = translation;
         });
 
-        this.#backBtn = document.getElementsByClassName("backButton")[0];
-        if(this.#backBtn) {
-            this.#backBtn.addEventListener("click", async () => {
-                await this.#navigateToIndexCallback();
-            });
-        }
+        this.#backBtn = document.getElementById("backBtn");
+        LanguageManager.getTranslation("back").then((translation) => {
+            this.#backBtn.textContent = translation;
+        });
+        
+        this.#backBtn.addEventListener("click", async () => {
+            await this.#navigateToIndexCallback();
+        });
     }
 
     onNavigatingToIndex(callback) {

@@ -23,7 +23,5 @@ export default class IndexView extends DialogoView {
         });
     }
 
-    onShow() {
-        //TODO: Dynamically create content...
     }
  }

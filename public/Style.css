@@ -14,16 +14,6 @@
     border-radius: 50%;
 }
 
-/*Image for user that is currently logged in.*/
-.imgUser {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-}
-.imgUser:hover {
-    cursor: pointer; /*Indicate that the image is clickable.*/
-}
-
 /* Generic button style, same as for backButton. */
 .button {
     background-color: #77AB18;
@@ -69,4 +59,52 @@ body {
     color: #E7F5D5;
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100%;
+}
+
+/** LANGUAGE SELECTION VIEW */
+
+.flags-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.flag {
+    width: 100px;
+    height: auto;
+}
+
+/** ALPHABET GAME */
+
+.currentChar {
+    font-size: 96px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.currentAppChar {
+    font-size: 50px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.currentCharDiv {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/** LANGUAGE PORTAL **/
+
+.btnAlphabet, .btnVerbs {
+    background-color: /*#77AB18*/#F2CB05;
+    color: /*#E7F5D5*/#594B02;
+    border-radius: 50%;
+
+    flex: 1 1 auto;
+    flex-grow: 1;
+    margin: 5px;
+    max-width: 150px;
 }
