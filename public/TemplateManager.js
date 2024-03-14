@@ -1,7 +1,7 @@
 export default class TemplateManager {
     static templateNames = ["indexTemplate", "languageStartTemplate", "createuserTemplate", 
                             "loginTemplate", "learnAlphabetTemplate", "settingsTemplate",
-                            "languageportalTemplate"];
+                            "languageportalTemplate", "learnVerbsTemplate", "associateVerbsTemplate"];
     static templatesDir = "Templates/";
 
     static initializeTemplates() {
