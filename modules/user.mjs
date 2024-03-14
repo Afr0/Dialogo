@@ -7,6 +7,7 @@ class User {
     #pwdHash = "";
     #salt = "";
     #preferredLanguage;
+    #alphabetsKnown = {};
 
     /**
     * Sets this user's id.
@@ -63,17 +64,32 @@ class User {
       this.#preferredLanguage = preferredLanguage;
     }
 
+    /**
+    * Sets this user's alphabetsKnown.
+    * @param {object} [alphabetsKnown] The user's preferred language, defaults to English.
+    */
+    setAlphabetsKnown(alphabetsKnown = {}) {
+      this.#alphabetsKnown = alphabetsKnown;
+    }
+
+    getAlphabetsKnown() {
+      return JSON.stringify(this.#alphabetsKnown);
+    }
+
     /**Constructs a new User instance. 
      * @param {string} userName The user's name.
      * @param {string} verifier The user's verifier.
      * @param {string} salt The user's salt.
      * @param {number} [preferredLanguage=1] The user's preferred language, defaults to English.
+     * @param {{}} [knownAlphabets={}] The user's known alphabets, defaults to empty.
     */
-    constructor(userName="", verifier="", salt="", preferredLanguage = Languages.ImplementedLanguages.English) {
+    constructor(userName="", verifier="", salt="", 
+                preferredLanguage = Languages.ImplementedLanguages.English, knownAlphabets = {}) {
         this.#userName = userName;
         this.#pwdHash = verifier;
         this.#salt = salt;
         this.#preferredLanguage = preferredLanguage;
+        this.#alphabetsKnown = knownAlphabets;
     }
 
     async save() {

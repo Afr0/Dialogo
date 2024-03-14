@@ -3,5 +3,6 @@ CREATE TABLE "Users" (
     name text,
     password text,
     salt text,
-    preferredLanguage integer
+    preferredLanguage integer,
+    alphabetsKnown text
 );

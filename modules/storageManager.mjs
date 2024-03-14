@@ -29,10 +29,10 @@ class DBManager {
         try {
             console.log("Trying to retrieve user from DB...");
             await client.connect();
-            let result = await client.query('SELECT id, name, password, salt, preferredLanguage FROM "public"."Users" WHERE name = $1;', [userName]);
+            let result = await client.query('SELECT id, name, password, salt, preferredLanguage, alphabetsknown FROM "public"."Users" WHERE name = $1;', [userName]);
             if (result.rows.length > 0) {
                 let userRow = result.rows[0];
-                let user = new User(userRow.name, userRow.password, userRow.salt, userRow.preferredlanguage);
+                let user = new User(userRow.name, userRow.password, userRow.salt, userRow.preferredlanguage, JSON.parse(userRow.alphabetsknown));
                 user.setId(userRow.id);
                 return user;
             } else {
@@ -51,7 +51,7 @@ class DBManager {
 
         try {
             await client.connect();
-            const output = await client.query('Update "public"."Users" set "name" = $1, "password" = $2, "salt" = $3, preferredLanguage = $4 where id = $5;', [user.getUsername(), user.getVerifier(), user.getSalt(), user.getPreferredLanguage(), user.getId()]);
+            const output = await client.query('Update "public"."Users" set "name" = $1, "password" = $2, "salt" = $3, preferredLanguage = $4, "alphabetsknown" = $5 where id = $6;', [user.getUsername(), user.getVerifier(), user.getSalt(), user.getPreferredLanguage(), user.getAlphabetsKnown(), user.getId()]);
 
             // Client.Query returns an object of type pg.Result (https://node-postgres.com/apis/result)
             // Of special interest is the rows and rowCount properties of this object.
@@ -95,10 +95,10 @@ class DBManager {
 
         try {
             await client.connect();
-            const output = await client.query('INSERT INTO "public"."Users"("name", "password", "salt", preferredLanguage) VALUES($1::Text, $2::Text, $3::Text, $4::Integer) RETURNING id;', [user.getUsername(), user.getVerifier(), user.getSalt(), user.getPreferredLanguage()]);
+            const output = await client.query('INSERT INTO "public"."Users"("name", "password", "salt", preferredLanguage, "alphabetsknown") VALUES($1::Text, $2::Text, $3::Text, $4::Integer, $5::Text) RETURNING id;', [user.getUsername(), user.getVerifier(), user.getSalt(), user.getPreferredLanguage(), user.getAlphabetsKnown()]);
 
             // Client.Query returns an object of type pg.Result (https://node-postgres.com/apis/result)
-            // Of special intrest is the rows and rowCount properties of this object.
+            // Of special interest is the rows and rowCount properties of this object.
 
             if (output.rows.length == 1) {
                 // We stored the user in the DB.
