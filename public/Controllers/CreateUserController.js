@@ -1,11 +1,10 @@
 import DialogoModel from "../DialogoModel.js";
 import CreateUserView from "../Views/CreateUserView.js";
 import LanguageManager from "../LanguageManager.js";
-import NavManager from "../NavigationManager.js";
+import IndexController from "../Controllers/IndexController.js";
 //node-srp was giving me a LOT of grief because of its insistence on require instead of import,
 //so ended up using this instead.
-import { SrpClient, RFC5054b1024Sha1 } from "@wault-pw/srp6a-webcrypto";
-
+import * as SrpClient from "secure-remote-password/client.js";
 
 /**
  * Controller for the CreateUser view.
@@ -16,15 +15,17 @@ import { SrpClient, RFC5054b1024Sha1 } from "@wault-pw/srp6a-webcrypto";
 export default class CreateUserController {
     #Model;
     #View;
-    #LangManager = new LanguageManager();
 
     constructor() {
         this.#Model = new DialogoModel(DialogoModel.USER_CACHE_NAME);
-        this.#View = new CreateUserView(DialogoModel.CREATEUSERVIEW_ID);
+        this.#View = new CreateUserView(DialogoModel.CREATEUSERVIEW_ID.replace("View", "Template"));
 
-        NavManager.registerView(DialogoModel.CREATEUSERVIEW_ID, this.#View);
-        NavManager.showView(DialogoModel.CREATEUSERVIEW_ID);
-        console.log(LanguageManager.getTranslation("newuserfailure"));
+        /**Event handler for navigating to the index. */
+        async function navigateToIndex() {
+            await IndexController.createIndexController();
+        }
+        
+        this.#View.onNavigatingToIndex(() => navigateToIndex());
 
         let userForm = document.getElementById("userForm");
 
@@ -33,25 +34,26 @@ export default class CreateUserController {
             //but does not stop the event from bubbling up the DOM:
             //https://jacobwardio.medium.com/how-to-correctly-use-preventdefault-stoppropagation-or-return-false-on-events-6c4e3f31aedb
             event.preventDefault();
-
+    
             let userName = document.getElementById("txtUsername").value;
             let password = document.getElementById("txtPassword").value;
-
-            let client = new SrpClient(userName, password, RFC5054b1024Sha1);
-            client.seed(await client.randomSalt());
-            let verifier = (await client.verifier()).toString('hex');
-
+    
+            let salt = SrpClient.generateSalt();
+            let privateKey = SrpClient.derivePrivateKey(salt, userName, password);
+            let verifier = SrpClient.deriveVerifier(privateKey);
+    
             //TODO: Sanity check this - the priority is not great, because the server likely sanity
             //checks whatever it receives.
             this.#Model.postData(CREATEUSER_URL,
-                { userName: userName, verifier: verifier, salt: client.salt.toString('hex') }, 
-                "application/json", "", "", false).then(response => {
-                    window.location.href="./index.html?userCreated=true";
-                }).catch((error) => {
-                    this.#View.createToast(LanguageManager.getTranslation("newuserfailure"));
-                    console.log(error);
+                { userName: userName, verifier: verifier, salt: salt }, 
+                "application/json", "", "", false).then(async (response) => {
+                    history.pushState({ userCreated: true }, '', './index.html?userCreated=true');
+                    await IndexController.createIndexController();
+                }).catch(async (error) => {
+                    this.#View.createToast(await LanguageManager.getTranslation("newuserfailure"));
+                    console.error(error);
                 });
-            });    
+        }); 
     }
 }
 

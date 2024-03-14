@@ -24,8 +24,10 @@ export default class SettingsView extends DialogoView {
 
         this.#selectLanguage = document.getElementById("selectLanguage");
         this.#selectLanguage.addEventListener("change", async (event) => {
-            let selectedLanguage = event.target.value;
-            await this.#changeLanguageCallback(selectedLanguage);
+            if(event.target.value !== "Languages") {
+                let selectedLanguage = event.target.value;
+                await this.#changeLanguageCallback(selectedLanguage);
+            }
         });
     }
 
@@ -39,6 +41,11 @@ export default class SettingsView extends DialogoView {
         let lblSelectLangSetting = document.getElementById("lblSelectLanguage");
         LanguageManager.getTranslation("selectlangsetting").then((translation) => {
             lblSelectLangSetting.textContent = translation;
+        });
+
+        let optLanguages = document.getElementById("optLanguages");
+        LanguageManager.getTranslation("languages").then((translation) => {
+            optLanguages.textContent = translation;
         });
     }
     

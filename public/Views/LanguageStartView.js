@@ -12,6 +12,8 @@ export default class LanguageStartView extends DialogoView {
     #navigateToRussianLanguagePortalEvent;
     #navigateToEnglishLanguagePortalEvent;
 
+    #knownAlphabets = {};
+
     //TODO: Find a way to not hardcode these??
     #italianFlag;
     #russianFlag;
@@ -24,16 +26,23 @@ export default class LanguageStartView extends DialogoView {
      * Please use IndexView.createInstance() to create an instance in a consumer class!
      * @param {string} [viewId=""] The id of the view to create.
      */
-    constructor(viewID="") {
+    constructor(viewID="", knownAlphabets = {}) {
         super(viewID);
 
+        this.#knownAlphabets = knownAlphabets;
         this.#italianFlag = document.getElementById("italianFlag");
         LanguageManager.getTranslation("knowthealphabet").then(async (translation) => {
             this.#italianFlag.addEventListener("click", async () => {
                 this.learningLanguage = "Italian";
-                await this.createConfirmationToast(translation,  
-                    async () => await this.#navigateToItalianLanguagePortalEvent(),
-                    async () => await this.#navigateToItalianAlphabetGameEvent());
+                
+                //Does the user already know this language?
+                if(!this.#knownAlphabets[this.learningLanguage.toLowerCase()]) {
+                    await this.createConfirmationToast(translation,  
+                        async () => await this.#navigateToItalianLanguagePortalEvent(),
+                        async () => await this.#navigateToItalianAlphabetGameEvent());
+                }
+                else
+                    await this.#navigateToItalianLanguagePortalEvent();
             });
         });
 
@@ -41,19 +50,32 @@ export default class LanguageStartView extends DialogoView {
         LanguageManager.getTranslation("knowthealphabet").then(async (translation) => {
             this.#russianFlag.addEventListener("click", async () => {
                 this.learningLanguage = "Russian";
-                await this.createConfirmationToast(translation,  
+
+                //Does the user already know this language?
+                if(!this.#knownAlphabets[this.learningLanguage.toLowerCase()]) {
+                    await this.createConfirmationToast(translation,  
                     async () => await this.#navigateToRussianLanguagePortalEvent(),
                     async () => await this.#navigateToRussianAlphabetGameEvent());
+                }
+                else {
+                    await this.#navigateToRussianLanguagePortalEvent();
+                }
             });
         });
 
         this.#UKFlag = document.getElementById("UKFlag");
         LanguageManager.getTranslation("knowthealphabet").then(async (translation) => {
-            this.learningLanguage = "English";
             this.#UKFlag.addEventListener("click", async () => {
-                await this.createConfirmationToast(translation,  
+                this.learningLanguage = "English";
+
+                //Does the user already know this language?
+                if(!this.#knownAlphabets[this.learningLanguage.toLowerCase()]) {
+                    await this.createConfirmationToast(translation,  
                     async () => await this.#navigateToEnglishLanguagePortalEvent(),
                     async () => await this.#navigateToEnglishAlphabetGameEvent());
+                }
+                else
+                    await this.#navigateToEnglishLanguagePortalEvent();
             });
         });
 

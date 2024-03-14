@@ -11,8 +11,11 @@ export default class AlphabetGameView extends DialogoView {
     #appAlphabet = {};
     #charmapping = {};
     #currentChar = 0;
+    #currentAppChar = 0;
+
     #currentCharSound;
     #soundDir;
+
     #isRussian = false;
     #isAppRussian = false;
 
@@ -23,13 +26,11 @@ export default class AlphabetGameView extends DialogoView {
      * @param {Object} charmapping The character mapping loaded from the alphabet's sound dir.
      * @param {string} soundDir The correct directory corresponding to the correct alphabet.
      */
-    constructor(viewID="", alphabet, appAlphabet, charmapping, soundDir = "") {
+    constructor(viewID="", alphabet, appAlphabet, appLanguage, charmapping, soundDir = "") {
         super(viewID);
 
         this.#alphabet = alphabet;
-        console.log(alphabet);
         this.#appAlphabet = appAlphabet;
-        console.log(appAlphabet);
         this.#charmapping = charmapping;
         this.#soundDir = soundDir;
         this.#currentCharSound = document.getElementById("currentCharSound");
@@ -48,8 +49,16 @@ export default class AlphabetGameView extends DialogoView {
             await this.#navigateToIndexEvent();
         });
 
+        //This is a suboptimal solution, but finding a generalized solution to accommodate
+        //any language that may or may not have an alphabet longer than the Italian one
+        //is outside the timeframe scope of this project.
+        if(this.#isItalian(this.#alphabet)) {
+            if(appLanguage === "english")
+                this.#appAlphabet = alphabet; //Hack.
+        }
+
         let lblCurrentAppChar = document.getElementById("lblCurrentAppChar");
-        lblCurrentAppChar.innerText = this.#appAlphabet[this.#currentChar];
+        lblCurrentAppChar.innerText = this.#appAlphabet[this.#currentAppChar];
 
         let lblCurrentChar = document.getElementById("lblCurrentChar");
         lblCurrentChar.innerText = this.#alphabet[this.#currentChar];
@@ -58,11 +67,13 @@ export default class AlphabetGameView extends DialogoView {
         this.#isAppRussian = this.#isCyrillic(this.#appAlphabet[this.#currentChar]);
 
         lblCurrentChar.addEventListener("click", async () => {
-            if(this.#currentChar <= alphabet.length)
+            if(this.#currentChar <= alphabet.length) {
+                this.#currentAppChar++;
                 this.#currentChar++;
-            else if(this.#currentChar >= alphabet.length) {
-                console.log("Test!");
-                this.onNavigatingToLanguagePortal();
+            }
+
+            if(this.#alphabet[this.#currentChar] == null) { //Don't try this at home, kids!
+                this.#navigateToLanguagePortalEvent();
             }
 
             this.#currentCharSound.src = this.#soundDir + this.#charmapping[alphabet[this.#currentChar]];
@@ -71,10 +82,10 @@ export default class AlphabetGameView extends DialogoView {
 
             if(!this.#isAppRussian) {
                 lblCurrentAppChar.innerText = this.#isRussian ? 
-                    this.#cyrillicToLatin(this.#alphabet[this.#currentChar]) : 
-                    this.#appAlphabet[this.#currentChar];
+                    this.#cyrillicToLatin(this.#alphabet[this.#currentAppChar]) : 
+                    this.#appAlphabet[this.#currentAppChar];
             } else 
-                lblCurrentAppChar.innerText = this.#latinToCyrillic(this.#alphabet[this.#currentChar]);
+                lblCurrentAppChar.innerText = this.#latinToCyrillic(this.#alphabet[this.#currentAppChar]);
         });
     }
 
@@ -95,6 +106,17 @@ export default class AlphabetGameView extends DialogoView {
             return true;
         else
             return false;
+    }
+
+    /**Checks an alphabet to see if it's italian.
+     * @returns True if it is, false otherwise. */
+    #isItalian(alphabet) {
+        //Less than ideal way of checking, since it doesn't accomodate 
+        //other alphabets that are also 21 chars, but it works for now.
+        if(Object.keys(alphabet).length == 21)
+            return true;
+
+        return false;
     }
 
     /**Converts the cyrillic to the latin alphabet, based on the

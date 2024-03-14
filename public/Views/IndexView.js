@@ -3,7 +3,6 @@ import LanguageManager from "../LanguageManager.js";
 
 export default class IndexView extends DialogoView {
     #columnClass;
-    #languageManager;
     
     #btnLogin;
     #btnLogout;
@@ -34,10 +33,6 @@ export default class IndexView extends DialogoView {
         }
 
         this.#btnNewUser = document.getElementById("btnNewUser");
-        LanguageManager.getTranslation("newuser").then((translation) => {
-            this.#btnNewUser.textContent = translation;
-        });
-
         if (this.#btnNewUser) {
             this.#btnNewUser.addEventListener("click", () => {
                 if (this.#navigateToCreateUserEvent)
@@ -46,10 +41,6 @@ export default class IndexView extends DialogoView {
         }
         
         this.#btnLogin = document.getElementById("btnLogin");
-        LanguageManager.getTranslation("login").then((translation) => {
-            this.#btnLogin.textContent = translation;
-        });
-
         if (this.#btnLogin) {
             this.#btnLogin.addEventListener("click", () => {
                 if (this.#navigateToLoginEvent)
@@ -58,10 +49,6 @@ export default class IndexView extends DialogoView {
         }
 
         this.#btnLogout = document.getElementById("btnLogout");
-        LanguageManager.getTranslation("logout").then((translation) => {
-            this.#btnLogout.textContent = translation;
-        });
-
         if (this.#btnLogout) {
             this.#btnLogout.addEventListener("click", () => {
                 if (this.#logoutEvent)
@@ -70,10 +57,6 @@ export default class IndexView extends DialogoView {
         }
 
         this.#btnSettings = document.getElementById("btnSettings");
-        LanguageManager.getTranslation("settings").then((translation) => {
-            this.#btnSettings.textContent = translation;
-        });
-
         if(this.#btnSettings) {
             this.#btnSettings.addEventListener("click", () => {
                 if(this.#navigateToSettingsEvent)
@@ -81,7 +64,26 @@ export default class IndexView extends DialogoView {
             });
         }
 
-        this.#languageManager = new LanguageManager();
+        this.setTranslations();
+    }
+
+    /**Sets translations for the HTML elements in this view. */
+    setTranslations() {
+        LanguageManager.getTranslation("settings").then((translation) => {
+            this.#btnSettings.textContent = translation;
+        });
+
+        LanguageManager.getTranslation("logout").then((translation) => {
+            this.#btnLogout.textContent = translation;
+        });
+
+        LanguageManager.getTranslation("login").then((translation) => {
+            this.#btnLogin.textContent = translation;
+        });
+
+        LanguageManager.getTranslation("newuser").then((translation) => {
+            this.#btnNewUser.textContent = translation;
+        });
     }
     
     /**Event handler for assigning a callback to the navigateToLanguageSelection event. */

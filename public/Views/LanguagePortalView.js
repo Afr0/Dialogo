@@ -9,6 +9,7 @@ export default class LanguagePortalView extends DialogoView {
 
     #navigateToIndexCallback;
     #navigateToAlphabetCallback;
+    #navigateToVerbsCallback;
 
     constructor(viewID) {
         super(viewID);
@@ -40,6 +41,10 @@ export default class LanguagePortalView extends DialogoView {
         LanguageManager.getTranslation("learnverbs").then((translation) => {
             this.#btnVerbs.textContent = translation;
         });
+
+        this.#btnVerbs.addEventListener("click", async () => {
+            await this.#navigateToVerbsCallback();
+        });
     }
     
     onNavigatingToIndex(callback) {
@@ -48,5 +53,9 @@ export default class LanguagePortalView extends DialogoView {
 
     onNavigatingToAlphabet(callback) {
         this.#navigateToAlphabetCallback = callback;
+    }
+
+    onNavigatingToVerbs(callback) {
+        this.#navigateToVerbsCallback = callback;
     }
  }
