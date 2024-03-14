@@ -70,19 +70,25 @@ USER_API.post('/login', express.json(), async (req, res) => {
     let { userName, ephemeral } = req.body;
 
     let user = users.find(user => user.getUsername() === userName);
-    if(!user) {
-        console.log("Trying to get user from DB...");
-        user = await User.getUser(userName);
-        users.push(user); //Cache user to avoid DB hits.
+
+    try {
+        if(!user) {
+            console.log("Trying to get user from DB...");
+            user = await User.getUser(userName);
+            users.push(user); //Cache user to avoid DB hits.
+        }
+
+        clientEphemerals[userName] = ephemeral;
+
+        let serverEphemeral = SRPServer.generateEphemeral(user.getVerifier());
+        //These don't have to go in the DB as their lifetime are on a session by session basis.
+        serverSecrets[user.getUsername()] = serverEphemeral.secret;
+        res.status(HttpCodes.SuccessfulResponse.Ok).json(JSON.stringify(
+            {salt: user.getSalt(), ephemeral: serverEphemeral.public}));
+    } catch(error) {
+        console.log(error);
+        res.status(HttpCodes.ClientSideErrorResponse.NotAcceptable).json(JSON.stringify({}));
     }
-
-    clientEphemerals[userName] = ephemeral;
-
-    let serverEphemeral = SRPServer.generateEphemeral(user.getVerifier());
-    //These don't have to go in the DB as their lifetime are on a session by session basis.
-    serverSecrets[user.getUsername()] = serverEphemeral.secret;
-    res.status(HttpCodes.SuccessfulResponse.Ok).json(JSON.stringify(
-        {salt: user.getSalt(), ephemeral: serverEphemeral.public}));
 });
 
 USER_API.post('/proof', express.json(), async (req, res) => {
@@ -108,8 +114,9 @@ USER_API.post('/proof', express.json(), async (req, res) => {
             };
 
             res.status(HttpCodes.SuccessfulResponse.Ok).json(JSON.stringify(
-                {sessionID: sessionID, proof: serverSession.proof, 
-                preferredLanguage: user.getPreferredLanguage()}));
+                { sessionID: sessionID, proof: serverSession.proof, 
+                preferredLanguage: user.getPreferredLanguage(), 
+                knownAlphabets: user.getAlphabetsKnown() }));
         }
         else
             res.status(HttpCodes.ClientSideErrorResponse.NotAcceptable).json(JSON.stringify({}));
@@ -149,7 +156,7 @@ USER_API.post('/logout', express.json(), async (req, res) => {
 });
 
 USER_API.put('/', express.json(), async (req, res) => {
-    let { sessionID, userName, preferredLanguage } = req.body;
+    let { sessionID, userName, preferredLanguage, knownAlphabets } = req.body;
 
     let session = sessionDetails[sessionID];
 
@@ -157,6 +164,9 @@ USER_API.put('/', express.json(), async (req, res) => {
         console.log("Found session, updating user...");
         let user = users.find(user => user.getUsername() === userName);
         user.setPreferredLanguage(preferredLanguage);
+        console.log("Alphabets known: " + knownAlphabets);
+        if(knownAlphabets)
+            user.setAlphabetsKnown(knownAlphabets);
         await user.save();
 
         res.status(HttpCodes.SuccessfulResponse.Ok).json({ message: "User updated successfully." });
