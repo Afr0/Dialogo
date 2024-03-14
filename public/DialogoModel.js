@@ -1,7 +1,7 @@
-
 /**
  * The Model is the workhorse of the MVC pattern. It is responsible for fetching
 /* and caching data needed by the View, as well as reading from the cache.
+/* The DialogoModel class was originally written for Helseflora in Apputvikling 1.
  */
 export default class DialogoModel {
     #cachedData;
@@ -16,17 +16,6 @@ export default class DialogoModel {
           this.#cachedData = JSON.parse(localStorage.getItem(nameofCache));
           this.#cacheName = nameofCache;
        }
-    }
- 
-    /** Gets this Model instance's cached data.
-     * @returns The cached data is an object consisting 
-     * of a timestamp property and a data property with 
-     * the data (an array of object(s)) itself.
-    */
-    getCachedData() {
-       //Sigh, JS doesn't support protected members, so we're left
-       //with getters and setters for inherited classes >_>
-       return this.#cachedData;
     }
     
     /**Fetches data from an endpoint, optionally caching it after it was fetched.
@@ -112,35 +101,39 @@ export default class DialogoModel {
      * @param {boolean} cacheResponse Wether or not to cache the response. Defaults to true.
      * @returns The response.
      * */
-    async putData(url, dataToPut, encType = "multipart-formdata", authorization="", 
+    async putData(url, dataToPut, contentType = "", encType = "multipart-formdata", authorization="", 
                 cacheResponse = true) {
-       let headers = {};
+      let headers = {};
  
-       if(encType)
+      if(encType)
           headers["Enc-type"] = encType;
-       if(authorization)
+      if(contentType)
+          headers["Content-type"] = contentType;
+      if(authorization)
           headers["Authorization"] = authorization;
+
+      let body = contentType === "application/json" ? JSON.stringify(dataToPut) : dataToPut;
  
-       let response = await fetch(url, { 
-          method: "PUT",
-          headers : headers,
-          body : dataToPut,
-       });
+      let response = await fetch(url, { 
+         method: "PUT",
+         headers : headers,
+         body : body,
+      });
  
-       if (!response.ok) 
-          throw Error(response.statusText);
+      if (!response.ok) 
+         throw Error(response.statusText);
  
-       let data = await response.json();
-       delete data.msg; //Don't need this.
+      let data = await response.json();
+      delete data.msg; //Don't need this.
  
-       if(cacheResponse) {
-          //Make a copy, because saveToCache() deletes the thumb property.
-          let dataToBeCached = this.#deepCopy(data);
-          this.saveToCache(dataToBeCached);
-       }
+      if(cacheResponse) {
+         //Make a copy, because saveToCache() deletes the thumb property.
+         let dataToBeCached = this.#deepCopy(data);
+         this.saveToCache(dataToBeCached);
+      }
  
-       return data;
-    }
+      return data;
+   }
     
     /**Sends a DELETE verb to an endpoint.    
      * @param {string} url The URL to the endpoint.
@@ -237,20 +230,16 @@ export default class DialogoModel {
  
        return user;
     }
- 
-    /** Logs a user out by deleting his or her cache.
-     * @returns True if successful, false otherwise.
-     */
-    logoutUser() {
-       if(localStorage.getItem(DialogoModel.USER_CACHE_NAME)) {
-          console.log("Removed user!");
-          localStorage.removeItem(DialogoModel.USER_CACHE_NAME);
-          return true;
-       } else {
-          console.log("User didn't exist!");
-          return false;
-       }
-    }
+
+   /**Deletes a session from sessionStorage when a user logs out. */
+   deleteSession() {
+      sessionStorage.removeItem(DialogoModel.SESSIONID_CACHE_NAME);
+      sessionStorage.removeItem(DialogoModel.USERNAME_CACHE_NAME);
+      localStorage.removeItem(DialogoModel.USERNAME_CACHE_NAME);
+      sessionStorage.removeItem(DialogoModel.SESSIONKEY_CACHE_NAME);
+      sessionStorage.removeItem(DialogoModel.KNOWNALPHABETS_CACHE_NAME);
+      sessionStorage.removeItem(DialogoModel.PREFERREDLANGUAGE_CACHE_NAME);
+   }
   
     /**Gets cached data based on the name that this DialogoModel was
      * initialized with.
@@ -504,15 +493,26 @@ export default class DialogoModel {
    }
 
    static INDEXVIEW_ID = "indexView";
+   static SETTINGSVIEW_ID = "settingsView";
+   static LOGINVIEW_ID = "loginView";
+   static LANGUAGESTARTVIEW_ID = "languageStartView";
+   static ALPHABETGAMEVIEW_ID = "learnAlphabetView";
+   static VERBSGAMEVIEW_ID = "learnVerbsTemplate";
    static CREATEUSERVIEW_ID = "createUserView";
    static TRANSLATEVIEW_ID = "translateView";
+   static LANGUAGEPORTALVIEW_ID = "languageportalView";
+   static ASSOCIATEVERBSGAMEVIEW_ID = "associateVerbsView";
+
+   static LEARNING_ITALIAN = "Italian";
+   static LEARNING_RUSSIAN = "Russian";
+   static LEARNING_ENGLISH = "English";
  
-    static CATEGORY_CACHE_NAME = "plantCategoriesCache";
-    static MAIN_CACHE_NAME = "plantDataCache";
-    static DETAIL_CACHE_NAME = "plantDetailsCache";
-    static CHECKOUT_CACHE_NAME = "checkoutCache";
-    static SHOPPINGCART_CACHE_NAME = "cart"; //Name doesn't conform, but was chosen by Ingrid.
-    static USER_CACHE_NAME = "user";
-    static IMAGE_CACHE_NAME = "images";
-    static IMAGE_STORE_NAME = "imageStore";
+   static MAIN_CACHE_NAME = "plantDataCache";
+
+   /**SESSIONSTORAGE */
+   static SESSIONID_CACHE_NAME = "sessionID";
+   static SESSIONKEY_CACHE_NAME = "sessionKey";
+   static USERNAME_CACHE_NAME = "userName";
+   static PREFERREDLANGUAGE_CACHE_NAME = "preferredLanguage";
+   static KNOWNALPHABETS_CACHE_NAME = "knownAlphabets";
  }
