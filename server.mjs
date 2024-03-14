@@ -12,6 +12,15 @@ const port = (process.env.PORT || 8080);
 server.set('port', port);
 
 // Defining a folder that will contain static files.
+//Avoid buffer overflows.
+server.use(express.json({ limit: '500kb' }));
+
+server.use(express.urlencoded({
+  extended: true,
+  limit: '500kb'
+}));
+
+//Defining a folder that will contain static files.
 server.use(express.static('public'));
 
 Translate.initialize("./middleware/API_KEY.txt");
