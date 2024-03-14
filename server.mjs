@@ -3,6 +3,7 @@ import 'dotenv/config';
 import USER_API from './routes/usersRoute.mjs'; // This is where we have defined the API for working with users.
 import Translate from "./middleware/Translate.mjs";
 import TRANSLATION_API from './routes/translationsRoute.mjs';
+import VERB_API from './routes/verbsRoute.mjs';
 import SuperLogger from "./modules/SuperLogger.mjs";
 
 // Creating an instance of the server
@@ -29,6 +30,8 @@ Translate.initialize("./middleware/API_KEY.txt");
 server.use("/user", USER_API);
 
 server.use("/translations", TRANSLATION_API);
+
+server.use("/verbs", VERB_API);
 
 // Enable logging for server
 const logger = new SuperLogger();

@@ -1,6 +1,7 @@
 import pg from "pg"
 import SuperLogger from "./SuperLogger.mjs";
 import User from "./user.mjs";
+import Verb from "./Verb.mjs";
 
 // We are using an enviorment variable to get the db credentials 
 if (process.env.DB_CONNECTIONSTRING == undefined)
@@ -112,6 +113,34 @@ class DBManager {
         }
 
         return user;
+    }
+
+    /**Gets absolutely all verbs stored in the DB. Probably not for production use :P 
+     * @returns An object containing all the verbs in the DB.
+    */
+    async getVerbs() {
+        let client = new pg.Client(this.#credentials);
+        let verbs = {}
+
+        try {
+            console.log("Trying to retrieve verbs from DB...");
+            await client.connect();
+            let result = await client.query('SELECT * FROM "public"."Verbs";');
+            if (result.rows.length > 0) {
+                result.rows.forEach(row => {
+                    let verb = new Verb(row.name, JSON.parse(row.english), JSON.parse(row.italian), JSON.parse(row.russian));
+                    verbs[row.name] = verb;
+                });
+                return verbs;
+            } else {
+                console.log("Couldn't find verbs, returning null...");
+                return null;
+            }
+        } catch (error) {
+            console.error("storageManager.getVerbs: " + error);
+        } finally {
+            client.end(); //Always disconnect from the database.
+        }
     }
 }
 
