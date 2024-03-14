@@ -98,7 +98,7 @@ export default class IndexController {
     }
 }
 
-const LOGOUT_URL = "http://localhost:8080/user/logout";
+const LOGOUT_URL = "http://${process.env.CONNECTION_DOMAIN}/user/logout";
 
 //Ensure the Controller is initialized when the webpage has been
 //loaded.

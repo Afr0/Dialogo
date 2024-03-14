@@ -51,7 +51,7 @@ class TranslateController {
     }
 }
 
-const TRANSLATE_URL = "http://localhost:8080/translations";
+const TRANSLATE_URL = "https://${process.env.CONNECTION_DOMAIN}/translations";
 
 //Ensure the Controller is initialized when the webpage has been
 //loaded.

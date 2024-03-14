@@ -54,4 +54,4 @@ export default class VerbGameController {
     }
 }
 
-const VERBS_URL = "http://localhost:8080/verbs/";
+const VERBS_URL = "https://${process.env.CONNECTION_DOMAIN}/verbs/";

@@ -49,4 +49,4 @@ export default class SettingsController {
     }
 }
 
-const SETTINGS_URL = "http://localhost:8080/user/";
+const SETTINGS_URL = "https://${process.env.CONNECTION_DOMAIN}/user/";

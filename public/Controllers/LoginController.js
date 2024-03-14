@@ -106,5 +106,5 @@ export default class LoginController {
     }
 }
 
-const LOGIN_URL = "http://localhost:8080/user/login";
-const PROOF_URL = "http://localhost:8080/user/proof";
+const LOGIN_URL = "https://${process.env.CONNECTION_DOMAIN}/user/login";
+const PROOF_URL = "https://${process.env.CONNECTION_DOMAIN}/user/proof";

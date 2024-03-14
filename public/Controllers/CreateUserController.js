@@ -57,4 +57,4 @@ export default class CreateUserController {
     }
 }
 
-const CREATEUSER_URL = "http://localhost:8080/user";
+const CREATEUSER_URL = "https://${process.env.CONNECTION_DOMAIN}/user";
