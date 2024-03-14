@@ -56,12 +56,15 @@
 </style>
 
 <body>
+    <div id="loginView" class="view" style="display:none;">
+    </div> 
 
     <!--Order is critically important. The controller depends on the other two, so
         has to be imported last.-->
-        <script src="DialogoModel.js" type="module"></script>
+        <!--<script src="DialogoModel.js" type="module"></script>
         <script src="./Views/IndexView.js" type="module"></script>
-        <script src="./Controllers/IndexController.js" type="module"></script>
+        <script src="./Controllers/IndexController.js" type="module"></script>-->
+    <script src="bundle.js"></script>
 </body>
 
 </html>
