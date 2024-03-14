@@ -5,6 +5,12 @@ export class Languages {
         Russian: 3
     }
 
+    static BCP47 = {
+        Italian: "it-IT",
+        English: "en-GB",
+        Russian: "ru-RU"
+    }
+
     /**Returns the string representation of a language based on a given key.
      * @param {number} langValue The key of the language to return the string representation for.
      * @returns The string representation of the language corresponding to the given key. 
@@ -16,7 +22,34 @@ export class Languages {
                 return key;
         }
 
-        return null; // Return null if no matching key is found
+        return null;
+    }
+
+    /**Gets the integer ID of a language based on a given language name.
+     * @param {string} [langName=""] The name of the language to return the ID for.
+     * @returns The integer ID of a language, or 0 if the language name didn't match 
+     *          any stored languages.
+     */
+    static getLanguageValue(langName = "") {
+        for (let key in this.ImplementedLanguages) {
+            if(key.toString() === langName || key.toString().toLowerCase() === langName)
+                return this.ImplementedLanguages[key];
+        }
+
+        return 0;
+    }
+
+    /**Gets a BCP47 language value from a provided language name.
+     * @param {string} [langName=""] The name of the language.
+     * @returns A BCP47 language code, or an empty string if the language wasn't found.
+     */
+    static BCP47FromLangName(langName = "") {
+        for (let key in this.BCP47) {
+            if(key.toString() === langName || key.toString().toLowerCase() === langName)
+                return this.BCP47[key];
+        }
+
+        return "";  
     }
 }
 
@@ -40,12 +73,12 @@ export default class LanguageManager {
      * Defaults to false.
      * @returns True if successful, false otherwise.
      */
-    static setLanguage(lang = 2, overrideCache = false) {
+    static async setLanguage(lang = 2, overrideCache = false) {
         try {
             if((!localStorage.getItem(CURRENTLANGUAGE_CACHE)) || 
               (localStorage.getItem(CURRENTLANGUAGE_CACHE) && overrideCache)) {
                 LanguageManager.#currentLanguage = lang;
-                LanguageManager.#loadLanguage(lang);
+                await LanguageManager.#loadLanguage(lang);
                 localStorage.setItem(CURRENTLANGUAGE_CACHE, lang)
               }
               else {
@@ -84,7 +117,7 @@ export default class LanguageManager {
      * @param {string} key The ID of the string (translation) to get.
      * @returns The translation if it was found, otherwise null.
      */
-    static getTranslation(key = "") {
+    static async getTranslation(key = "") {
         if(!LanguageManager.#currentLanguage) {
             LanguageManager.#currentLanguage = localStorage.getItem(CURRENTLANGUAGE_CACHE);
 
@@ -96,7 +129,7 @@ export default class LanguageManager {
 
         if (!LanguageManager.#translations[LanguageManager.#currentLanguage]) 
             //Persist dammit!
-            LanguageManager.#loadLanguage(LanguageManager.#currentLanguage);
+            await LanguageManager.#loadLanguage(LanguageManager.#currentLanguage);
 
         return LanguageManager.#translations[LanguageManager.#currentLanguage][key] || `{{${key}}}`;
     }
