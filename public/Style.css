@@ -1,23 +1,23 @@
 /*Cross-site styling for Dialogo.*/
 
 .header {
-    color: /*#819258*/#020126;
-    background-color: /*#323A35*/#F2E205; /*Picked this color from the original PDF.*/
+    color: #020126;
+    background-color: #F2E205;
     font-weight: bold;
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 16px;
 }
 
 .backButton {
-    background-color: /*#77AB18*/#F2CB05;
-    color: /*#E7F5D5*/#594B02;
+    background-color: #F2CB05;
+    color: #594B02;
     border-radius: 50%;
 }
 
 /* Generic button style, same as for backButton. */
 .button {
-    background-color: /*#77AB18*/#F2CB05;
-    color: /*#E7F5D5*/#594B02;
+    background-color: #F2CB05;
+    color: #594B02;
     border-radius: 50%;
 }
 
@@ -27,7 +27,7 @@
     left: 50%;
     transform: translateX(-50%);
     background-color: #F2CB05;
-    color: /*#E7F5D5*/#594B02;
+    color: #594B02;
     padding: 16px;
     border-radius: 8px;
     /*Make sure toasts appear on top of all other elements by giving them a high z-index.*/
@@ -55,8 +55,8 @@
 }
 
 body {
-    background-color: /*#323A35*/#F2E205;
-    color: /*#E7F5D5*/#020126;
+    background-color: #F2E205;
+    color: #020126;
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100%;
 }
@@ -96,11 +96,39 @@ body {
     align-items: center;
 }
 
+/**ASSOCIATE VERBS GAME**/
+
+.score {
+    color: #020126;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: bold;
+}
+
+#pronouns-container, #verbs-container {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+}
+
+.pronoun, .verb {
+    color: #594B02;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    padding: 10px;
+    border: 2px solid #020126;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.verb {
+    background-color: #F2c205;
+}
+
 /** LANGUAGE PORTAL **/
 
 .btnAlphabet, .btnVerbs {
-    background-color: /*#77AB18*/#F2CB05;
-    color: /*#E7F5D5*/#594B02;
+    background-color: #F2CB05;
+    color: #594B02;
     border-radius: 50%;
 
     flex: 1 1 auto;
