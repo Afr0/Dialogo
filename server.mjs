@@ -1,5 +1,5 @@
-import express from 'express' // Express is installed using npm
 import 'dotenv/config';
+import express from 'express'; // Express is installed using npm
 import USER_API from './routes/usersRoute.mjs'; // This is where we have defined the API for working with users.
 import Translate from "./middleware/Translate.mjs";
 import TRANSLATION_API from './routes/translationsRoute.mjs';
@@ -12,7 +12,11 @@ const server = express();
 const port = (process.env.PORT || 8080);
 server.set('port', port);
 
-// Defining a folder that will contain static files.
+server.get('/manifest.json', (req, res) => {
+    res.type('application/manifest+json');
+    res.sendFile('manifest.json');
+});
+
 //Avoid buffer overflows.
 server.use(express.json({ limit: '500kb' }));
 
@@ -35,7 +39,7 @@ server.use("/verbs", VERB_API);
 
 // Enable logging for server
 const logger = new SuperLogger();
-server.use(logger.createAutoHTTPRequestLogger()); // Will logg all http method requests
+server.use(logger.createAutoHTTPRequestLogger()); // Will log all http method requests
 
 // A get request handler example
 server.get("/", (req, res) => {
