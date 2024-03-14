@@ -5,7 +5,7 @@
   "main": "public/index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "browserify public/Controllers/IndexController.js -o public/bundle.js -t [ babelify --presets [@babel/preset-env] ]"
   },
   "keywords": [],
   "author": "Mats Vederhus",
