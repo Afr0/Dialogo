@@ -101,4 +101,4 @@ export default class AlphabetGameController {
     }
 }
 
-const UPDATEUSER_URL = "https://${process.env.CONNECTION_DOMAIN}/user/";
+const UPDATEUSER_URL = "http://" + DialogoModel.COMNECTION_DOMAIN + "/user/";
