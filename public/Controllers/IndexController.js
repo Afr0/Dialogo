@@ -7,6 +7,7 @@ import LoginController from "./LoginController.js";
 import LanguageStartController from "./LanguageStartController.js";
 import TemplateManager from "../TemplateManager.js";
 import SettingsController from "./SettingsController.js";
+import StatsController from "./StatsController.js";
 
 /**
  * Controller for the Index view.
@@ -43,6 +44,7 @@ export default class IndexController {
         appView.onNavigatingToCreateuser(() => navigateToCreateUser());
         appView.onNavigatingToLanguageSelection(() => navigateToLanguageSelection());
         appView.onNavigatingToSettings(() => navigateToSettings());
+        appView.onNavigatingToStats(() => navigateToStats());
         
         //Since this is for index.html, let's set and cache the default language
         //and assume the user hasn't changed it. We do not override - the only
@@ -53,6 +55,7 @@ export default class IndexController {
         if(urlParams.get("userLoggedIn") === "true") {
             appView.createToast(await LanguageManager.getTranslation("userloggedin"));
             appView.switchLoginBtn();
+            appView.switchStatsBtn();
         }
         if(urlParams.get("userCreated") === "true")
             appView.createToast(await LanguageManager.getTranslation("newusercreated"));
@@ -75,6 +78,10 @@ export default class IndexController {
 
         function navigateToSettings() {
             let settingsController = new SettingsController();
+        }
+
+        function navigateToStats() {
+            let statsController = new StatsController();
         }
     }
 
