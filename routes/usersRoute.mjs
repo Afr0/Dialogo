@@ -32,7 +32,7 @@ var clientEphemerals = {};
 USER_API.get('/:id', (req, res) => {
     let { id } = req.params;
 
-    let user = users.find(user => user.getId() === id);
+    let user = users.find(user => user && user.getId() === id);
 
     if (user)
         res.status(HttpCodes.SuccessfulResponse.Ok).json(user);
@@ -46,21 +46,54 @@ USER_API.post('/', express.json(), preferredLanguage, async (req, res) => {
     // https://www.freecodecamp.org/news/javascript-object-destructuring-spread-operator-rest-parameter/
     let { userName, verifier, salt } = req.body;
 
+    //u0400-u04FF = Cyrillic alphabet.
+    if (!/^[a-æøåA-ÆØÅ0-9\s\u0400-\u04FF]+$/i.test(userName))
+        res.status(HttpCodes.ClientSideErrorResponse.BadRequest).end(); //F*ck off!
+
     if (userName != "" && verifier != "" && salt != "") {
-        let user = new User(userName, verifier, salt);
-
-        //TODO: Does the user exist?
-        let exists = false;
-
-        if (!exists) {
-            //TODO: What happens if this fails?
-            user = await user.save();
-            users.push(user);
-            res.status(HttpCodes.SuccessfulResponse.Ok).json(JSON.stringify(user));
+        let user = users.find(user => user && user.getUsername() === userName);
+        if(!user) {
+            await User.getUser(userName).then(async (user) => {
+                if (!user) {
+                    let newUser = new User(userName, verifier, salt);
+                    newUser = await newUser.save();
+                    users.push(newUser);
+                    res.status(HttpCodes.SuccessfulResponse.Ok).json(JSON.stringify(user));
+                } else {
+                    res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("User already existed.").end();
+                }
+            });
         } else {
-            res.status(HttpCodes.ClientSideErrorResponse.BadRequest).end();
+            res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("User already existed.").end();
         }
+    } else {
+        res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("Missing data field.").end();
+    }
+});
 
+USER_API.post('/unsafe', express.json(), preferredLanguage, async (req, res) => {
+    let { userName, verifier } = req.body;
+
+    //u0400-u04FF = Cyrillic alphabet.
+    if (!/^[a-æøåA-ÆØÅ0-9\s\u0400-\u04FF]+$/i.test(userName))
+        res.status(HttpCodes.ClientSideErrorResponse.BadRequest).end(); //F*ck off!
+
+    if (userName != "" && verifier != "") {
+        let user = users.find(user => user && user.getUsername() === userName);
+        if(!user) {
+            await User.getUser(userName).then(async (user) => {
+                if (!user) {
+                    let newUser = new User(userName, verifier, "");
+                    newUser = await newUser.save();
+                    users.push(newUser);
+                    res.status(HttpCodes.SuccessfulResponse.Ok).json(JSON.stringify(user));
+                } else {
+                    res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("User already existed.").end();
+                }
+            });
+        } else {
+            res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("User already existed.").end();
+        }
     } else {
         res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("Missing data field.").end();
     }
@@ -69,13 +102,23 @@ USER_API.post('/', express.json(), preferredLanguage, async (req, res) => {
 USER_API.post('/login', express.json(), async (req, res) => {
     let { userName, ephemeral } = req.body;
 
-    let user = users.find(user => user.getUsername() === userName);
+    //u0400-u04FF = Cyrillic alphabet.
+    if (!/^[a-æøåA-ÆØÅ0-9\s\u0400-\u04FF]+$/i.test(userName))
+        res.status(HttpCodes.ClientSideErrorResponse.BadRequest).end(); //F*ck off!
+
+    let user = users.find(user => user && user.getUsername() === userName);
 
     try {
         if(!user) {
             console.log("Trying to get user from DB...");
             user = await User.getUser(userName);
-            users.push(user); //Cache user to avoid DB hits.
+
+            if(user)
+                users.push(user); //Cache user to avoid DB hits.
+            else {
+                res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("User didn't exist.").end();
+                return;
+            }
         }
 
         clientEphemerals[userName] = ephemeral;
@@ -87,15 +130,57 @@ USER_API.post('/login', express.json(), async (req, res) => {
             {salt: user.getSalt(), ephemeral: serverEphemeral.public}));
     } catch(error) {
         console.log(error);
+        res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("Error during login.").end();
+    }
+});
+
+USER_API.post('/unsafelogin', express.json(), async (req, res) => {
+    let { userName, password } = req.body;
+
+    //u0400-u04FF = Cyrillic alphabet.
+    if (!/^[a-æøåA-ÆØÅ0-9\s\u0400-\u04FF]+$/i.test(userName))
+        res.status(HttpCodes.ClientSideErrorResponse.BadRequest).end(); //F*ck off!
+
+    let user = users.find(user => user && user.getUsername() === userName);
+
+    try {
+        if(!user) {
+            console.log("Trying to get user from DB...");
+            user = await User.getUser(userName);
+
+            if(user)
+                users.push(user); //Cache user to avoid DB hits.
+            else {
+                console.log("User didn't exist!");
+                res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("User didn't exist.").end();
+                return;
+            }
+        }
+
+        let sessionID = crypto.randomUUID();
+
+        if(user.getVerifier() === password)
+            res.status(HttpCodes.SuccessfulResponse.Ok).json(JSON.stringify(
+                {sessionID: sessionID, preferredLanguage: user.getPreferredLanguage(), 
+                    knownAlphabets: user.getAlphabetsKnown()}));
+        else
+            res.status(HttpCodes.ClientSideErrorResponse.BadRequest).send("Wrong password.").end();
+    } catch(error) {
+        console.log(error);
         res.status(HttpCodes.ClientSideErrorResponse.NotAcceptable).json(JSON.stringify({}));
     }
 });
 
 USER_API.post('/proof', express.json(), async (req, res) => {
     let { userName, proof } = req.body;
+
+    //u0400-u04FF = Cyrillic alphabet.
+    if (!/^[a-æøåA-ÆØÅ0-9\s\u0400-\u04FF]+$/i.test(userName))
+        res.status(HttpCodes.ClientSideErrorResponse.BadRequest).end(); //F*ck off!
+
     let serverSecretEphemeral = serverSecrets[userName];
 
-    let user = users.find(user => user.getUsername() === userName);
+    let user = users.find(user => user && user.getUsername() === userName);
     if(!user) {
         console.log("Trying to get user from DB...");
         user = await User.getUser(userName);
@@ -128,6 +213,11 @@ USER_API.post('/proof', express.json(), async (req, res) => {
 
 USER_API.post('/logout', express.json(), async (req, res) => {
     let { userName, sessionID } = req.body;
+
+    //u0400-u04FF = Cyrillic alphabet.
+    if (!/^[a-æøåA-ÆØÅ0-9\s\u0400-\u04FF]+$/i.test(userName))
+        res.status(HttpCodes.ClientSideErrorResponse.BadRequest).end(); //F*ck off!
+
     let encryptionKey;
 
     for (const [sessionID, details] of Object.entries(sessionDetails)) {
@@ -158,11 +248,15 @@ USER_API.post('/logout', express.json(), async (req, res) => {
 USER_API.put('/', express.json(), async (req, res) => {
     let { sessionID, userName, preferredLanguage, knownAlphabets } = req.body;
 
+    //u0400-u04FF = Cyrillic alphabet.
+    if (!/^[a-æøåA-ÆØÅ0-9\s\u0400-\u04FF]+$/i.test(userName))
+        res.status(HttpCodes.ClientSideErrorResponse.BadRequest).end(); //F*ck off!
+
     let session = sessionDetails[sessionID];
 
     if(session) {
         console.log("Found session, updating user...");
-        let user = users.find(user => user.getUsername() === userName);
+        let user = users.find(user => user && user.getUsername() === userName);
         user.setPreferredLanguage(preferredLanguage);
         console.log("Alphabets known: " + knownAlphabets);
         if(knownAlphabets)
