@@ -46,6 +46,9 @@ class DBManager {
         }
     }
 
+    /**Updates a user.
+    * @param { User } [user] The user to update.
+    */
     async updateUser(user) {
         const client = new pg.Client(this.#credentials);
 
@@ -90,6 +93,9 @@ class DBManager {
         return user;
     }
 
+    /**Creates a user.
+    * @param { User } [user] The user to create.
+    */
     async createUser(user) {
         const client = new pg.Client(this.#credentials);
 

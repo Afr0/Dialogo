@@ -5,7 +5,7 @@ import IndexController from "./IndexController.js";
 import LanguagePortalController from "./LanguagePortalController.js";
 
 /**
- * Controller for the Login view.
+ * Controller for the Associate Verbs view.
  */
 export default class AssociateVerbsGameController {
     #Model;
