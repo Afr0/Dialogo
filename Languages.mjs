@@ -21,4 +21,18 @@ export default class Languages {
 
         return null; // Return null if no matching key is found
     }
+
+    /**Gets the integer ID of a language based on a given language name.
+    * @param {string} [langName=""] The name of the language to return the ID for.
+    * @returns The integer ID of a language, or 0 if the language name didn't match 
+    *          any stored languages.
+    */
+    static getLanguageValue(langName = "") {
+        for (let key in this.ImplementedLanguages) {
+            if(key.toString() === langName || key.toString().toLowerCase() === langName)
+                return this.ImplementedLanguages[key];
+        }
+    
+        return 0;
+    }
 }
