@@ -85,7 +85,6 @@ body {
 
 .currentAppChar {
     font-size: 50px;
-    cursor: pointer;
     text-align: center;
 }
 
@@ -94,6 +93,28 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+/** VERB GAME */
+
+.currentVerb {
+    font-size: 96px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.currentAppVerb {
+    font-size: 50px;
+    text-align: center;
+}
+
+/*Mobile devices.*/
+@media (max-width: 414px) {
+    .currentVerb {
+        font-size: 60px;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
 }
 
 /**ASSOCIATE VERBS GAME**/
@@ -108,6 +129,17 @@ body {
     display: flex;
     justify-content: space-around;
     padding: 20px;
+}
+
+/*Mobile devices.*/
+@media (max-width: 430px) {
+    #pronouns-container, #verbs-container {
+        gap: 10px;
+        padding: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
 }
 
 .pronoun, .verb {
